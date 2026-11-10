@@ -100,3 +100,5 @@ See [docs/API.md](docs/API.md) for every endpoint.
 
 ## PROJECT LIVE LINK
   https://claude.ai/artifact/Pg5acAFqg2j5qt9tUENarp.
+## GITHUB LIVE LINK
+   https://psaikiran2002.github.io/Week-2-task-3-Authentication-System/
