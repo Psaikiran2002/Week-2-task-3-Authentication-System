@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Authentication System - Working Demo & Source Code Showcase</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden bg-slate-950 text-slate-100">
+
+  <!-- MAIN NAVIGATION HEADER -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-30 flex-none">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-sky-500/10 border border-sky-500/20 rounded-xl text-sky-400">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg text-white leading-tight">Secure Auth Suite</h1>
+          <p class="text-xs text-slate-400">Task 3: Full-Stack Authentication & Security</p>
+        </div>
+      </div>
+
+      <!-- Section Switcher Tabs -->
+      <nav class="flex bg-slate-950/80 p-1 border border-slate-800 rounded-xl text-xs font-semibold">
+        <button onclick="switchMainSection('demo')" id="btn-sec-demo" class="main-sec-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 bg-sky-600 text-white shadow">
+          <i data-lucide="play-circle" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Live Sandbox Demo</span>
+        </button>
+        <button onclick="switchMainSection('code')" id="btn-sec-code" class="main-sec-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-400 hover:text-slate-200">
+          <i data-lucide="code-2" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Backend Source Code</span>
+        </button>
+        <button onclick="switchMainSection('docs')" id="btn-sec-docs" class="main-sec-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-400 hover:text-slate-200">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">API & Security Docs</span>
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- CONTENT SECTION 1: LIVE DEMO SANDBOX -->
+  <main id="sec-demo" class="main-section flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+    
+    <!-- LEFT SIDE: INTERACTIVE AUTH APP UI -->
+    <section class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+      
+      <!-- Auth Sub-Navigation Tabs -->
+      <div class="w-full max-w-xl mb-6 flex justify-between items-center bg-slate-900 border border-slate-800 p-1.5 rounded-2xl">
+        <div class="flex space-x-1">
+          <button onclick="switchAuthTab('register')" id="auth-tab-register" class="auth-tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2 bg-sky-600 text-white shadow">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>1. Register</span>
+          </button>
+          <button onclick="switchAuthTab('login')" id="auth-tab-login" class="auth-tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2 text-slate-400 hover:text-white">
+            <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+            <span>2. Login</span>
+          </button>
+          <button onclick="switchAuthTab('dashboard')" id="auth-tab-dashboard" class="auth-tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2 text-slate-400 hover:text-white">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            <span>3. Dashboard</span>
+          </button>
+        </div>
+
+        <!-- Current Session Pill -->
+        <div id="session-badge" class="hidden md:flex items-center space-x-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[11px] mr-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="session-username-display">Session Active</span>
+        </div>
+      </div>
+
+      <div class="w-full max-w-xl my-auto">
+
+        <!-- TAB 1: REGISTER FORM -->
+        <div id="auth-view-register" class="auth-panel space-y-6">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="mb-6">
+              <h2 class="text-2xl font-bold text-white">Create Account</h2>
+              <p class="text-xs text-slate-400 mt-1">Submit email, username, and password to store salted hash in MongoDB.</p>
+            </div>
+
+            <form onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Username</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                  </span>
+                  <input type="text" id="reg-username" required placeholder="alex_dev"
+                    class="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                  </span>
+                  <input type="email" id="reg-email" required placeholder="alex@company.com"
+                    class="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                  </span>
+                  <input type="password" id="reg-password" oninput="updatePasswordStrength(this.value)" required placeholder="••••••••"
+                    class="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+                <!-- Password Strength Visualizer -->
+                <div class="mt-2 space-y-1">
+                  <div class="flex justify-between text-[10px] text-slate-400">
+                    <span>Password Strength</span>
+                    <span id="strength-label" class="font-semibold text-slate-500">Weak</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden flex">
+                    <div id="strength-bar" class="w-0 h-full bg-red-500 transition-all duration-300"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="reg-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs flex items-center space-x-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 flex-none"></i>
+                <span id="reg-error-msg"></span>
+              </div>
+
+              <button type="submit" class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-sky-600/20 transition flex items-center justify-center space-x-2">
+                <span>Execute POST /api/register</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- TAB 2: LOGIN FORM -->
+        <div id="auth-view-login" class="auth-panel space-y-6 hidden">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="mb-6">
+              <h2 class="text-2xl font-bold text-white">Login Authentication</h2>
+              <p class="text-xs text-slate-400 mt-1">Verify user password against database bcrypt hash to receive JWT token.</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Email or Username</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                  </span>
+                  <input type="text" id="login-identifier" required placeholder="alex@company.com"
+                    class="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                  </span>
+                  <input type="password" id="login-password" required placeholder="••••••••"
+                    class="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+              </div>
+
+              <div id="login-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs flex items-center space-x-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4 flex-none"></i>
+                <span id="login-error-msg"></span>
+              </div>
+
+              <button type="submit" class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-sky-600/20 transition flex items-center justify-center space-x-2">
+                <span>Execute POST /api/login</span>
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+              </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between items-center text-xs">
+              <span class="text-slate-500">Quick Test Account:</span>
+              <button onclick="fillDemoAccount()" class="text-sky-400 hover:underline font-medium">
+                Auto-fill Demo Account
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: PROTECTED DASHBOARD -->
+        <div id="auth-view-dashboard" class="auth-panel space-y-6 hidden">
+          
+          <!-- ACCESS DENIED GUARD ALERT -->
+          <div id="dash-guard-denied" class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 text-center space-y-4">
+            <div class="inline-flex p-3 bg-amber-500/20 rounded-full text-amber-400">
+              <i data-lucide="shield-alert" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-amber-300">Protected Route - 401 Unauthorized</h3>
+              <p class="text-xs text-amber-400/80 max-w-md mx-auto mt-1">
+                Accessing GET `/api/dashboard` requires a valid HTTP Authorization Header containing <code class="text-white font-mono bg-amber-500/20 px-1 rounded">Bearer &lt;token&gt;</code>.
+              </p>
+            </div>
+            <button onclick="switchAuthTab('login')" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs rounded-xl transition">
+              Go to Login to Authenticate
+            </button>
+          </div>
+
+          <!-- ACCESS GRANTED PROTECTED CONTENT -->
+          <div id="dash-guard-granted" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-lg font-bold text-white shadow-lg shadow-sky-500/20">
+                  <span id="dash-avatar-initials">AD</span>
+                </div>
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <h2 id="dash-username" class="text-lg font-bold text-white">Alex Dev</h2>
+                    <span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold rounded-md">Verified Token</span>
+                  </div>
+                  <p id="dash-email" class="text-xs text-slate-400">alex@company.com</p>
+                </div>
+              </div>
+
+              <button onclick="handleLogout()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold transition flex items-center space-x-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Logout & Clear Token</span>
+              </button>
+            </div>
+
+            <!-- JWT Token Inspector -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-bold text-slate-300 flex items-center space-x-2">
+                  <i data-lucide="key-round" class="w-4 h-4 text-sky-400"></i>
+                  <span>Decoded JWT Token Payload</span>
+                </span>
+                <span class="text-[10px] font-mono bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded">HS256 Verified</span>
+              </div>
+              <pre id="jwt-payload-display" class="font-mono text-xs text-sky-300 bg-slate-950 p-3 rounded-xl border border-slate-800 overflow-x-auto">{}</pre>
+            </div>
+
+            <!-- Protected Data Fetch Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold text-white flex items-center space-x-2">
+                  <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i>
+                  <span>Protected Endpoint Response (`/api/dashboard`)</span>
+                </h3>
+                <button onclick="fetchProtectedDashboard()" class="px-3 py-1 bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/30 text-xs font-medium rounded-lg transition">
+                  Re-fetch Endpoint
+                </button>
+              </div>
+              <pre id="protected-response-output" class="font-mono text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800">
+Click button above to request protected payload...
+              </pre>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE: LIVE API LOG TERMINAL & DATABASE INSPECTOR -->
+    <section class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-900/90 flex flex-col h-80 lg:h-auto">
+      <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-sky-400"></i>
+          <span class="text-xs font-bold text-white">Live API & DB Network Logs</span>
+        </div>
+        <div class="flex space-x-1">
+          <button onclick="clearConsoleLog()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded" title="Clear Console">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="toggleDbModal()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded" title="View Database Records">
+            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="console-logs-box" class="flex-1 p-4 font-mono text-[11px] overflow-y-auto space-y-3 bg-slate-950">
+        <div class="text-slate-500 italic">[Server]: Express Mock Engine Active. Listening on port 5000...</div>
+      </div>
+
+      <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-between items-center text-xs">
+        <span class="text-slate-400">DB Records: <strong id="db-user-count" class="text-sky-400 font-mono">0</strong></span>
+        <button onclick="toggleDbModal()" class="text-[11px] text-sky-400 hover:underline">Inspect User Database &rarr;</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CONTENT SECTION 2: BACKEND SOURCE CODE VIEW -->
+  <main id="sec-code" class="main-section flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 hidden">
+    <div class="max-w-6xl mx-auto space-y-6">
+      
+      <div>
+        <h2 class="text-2xl font-bold text-white">Backend Source Code Files</h2>
+        <p class="text-xs text-slate-400 mt-1">Modular Node.js, Express, Mongoose, bcrypt, and jsonwebtoken code implementation.</p>
+      </div>
+
+      <!-- File Navigation Tabs -->
+      <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
+        <button onclick="switchCodeFile('server')" id="code-tab-server" class="code-file-btn px-3 py-1.5 text-xs font-mono font-medium rounded-lg bg-sky-600 text-white">server.js</button>
+        <button onclick="switchCodeFile('userModel')" id="code-tab-userModel" class="code-file-btn px-3 py-1.5 text-xs font-mono font-medium rounded-lg text-slate-400 hover:text-white bg-slate-900">models/User.js</button>
+        <button onclick="switchCodeFile('authMiddleware')" id="code-tab-authMiddleware" class="code-file-btn px-3 py-1.5 text-xs font-mono font-medium rounded-lg text-slate-400 hover:text-white bg-slate-900">middleware/auth.js</button>
+        <button onclick="switchCodeFile('authController')" id="code-tab-authController" class="code-file-btn px-3 py-1.5 text-xs font-mono font-medium rounded-lg text-slate-400 hover:text-white bg-slate-900">controllers/authController.js</button>
+        <button onclick="switchCodeFile('packageJson')" id="code-tab-packageJson" class="code-file-btn px-3 py-1.5 text-xs font-mono font-medium rounded-lg text-slate-400 hover:text-white bg-slate-900">package.json</button>
+      </div>
+
+      <!-- Code Box with Copy Button -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
+        <div class="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex justify-between items-center">
+          <span id="current-filename" class="font-mono text-xs text-sky-400">server.js</span>
+          <button onclick="copyCurrentCode()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-md transition flex items-center space-x-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span id="copy-btn-text">Copy Code</span>
+          </button>
+        </div>
+        <pre class="p-6 overflow-x-auto font-mono text-xs text-emerald-400/90 leading-relaxed"><code id="code-viewer-block">Loading code...</code></pre>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- CONTENT SECTION 3: API DOCS & SECURITY README -->
+  <main id="sec-docs" class="main-section flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8 hidden">
+    <div class="max-w-5xl mx-auto space-y-8">
+      
+      <!-- API Endpoint Specifications Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-sky-400"></i>
+          <span>API Endpoint Specifications</span>
+        </h2>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300 border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-950 text-slate-400 font-mono">
+                <th class="p-3">Method</th>
+                <th class="p-3">Endpoint Route</th>
+                <th class="p-3">Required Headers</th>
+                <th class="p-3">Request Payload</th>
+                <th class="p-3">Success Response</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <tr>
+                <td class="p-3 font-mono font-bold text-emerald-400">POST</td>
+                <td class="p-3 font-mono text-white">/api/register</td>
+                <td class="p-3 font-mono text-slate-400">Content-Type: application/json</td>
+                <td class="p-3 font-mono text-sky-300">{ username, email, password }</td>
+                <td class="p-3 font-mono text-slate-300">201 Created ({ message, userId })</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono font-bold text-emerald-400">POST</td>
+                <td class="p-3 font-mono text-white">/api/login</td>
+                <td class="p-3 font-mono text-slate-400">Content-Type: application/json</td>
+                <td class="p-3 font-mono text-sky-300">{ identifier, password }</td>
+                <td class="p-3 font-mono text-slate-300">200 OK ({ token, user })</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono font-bold text-sky-400">GET</td>
+                <td class="p-3 font-mono text-white">/api/dashboard</td>
+                <td class="p-3 font-mono text-amber-400">Authorization: Bearer &lt;JWT&gt;</td>
+                <td class="p-3 font-mono text-slate-500">None</td>
+                <td class="p-3 font-mono text-slate-300">200 OK ({ user, protectedData })</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Security Best Practices & README Setup -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
+        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+          <i data-lucide="shield" class="w-5 h-5 text-indigo-400"></i>
+          <span>Security & Setup Guidelines</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
+          
+          <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm">1. Password Hashing (bcrypt)</h3>
+            <p class="text-slate-400">
+              Passwords must never be saved as plain text. Use bcrypt salt rounds (10+) to compute salted hashes before database persistence.
+            </p>
+          </div>
+
+          <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm">2. Token Storage Strategy</h3>
+            <p class="text-slate-400">
+              For web applications, store JWT tokens in <code class="text-sky-300">HttpOnly</code>, <code class="text-sky-300">SameSite=Strict</code> cookies to mitigate Cross-Site Scripting (XSS) attacks.
+            </p>
+          </div>
+
+          <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm">3. Input Sanitization & Validation</h3>
+            <p class="text-slate-400">
+              Validate input emails using Regex and sanitize data using libraries like <code class="text-sky-300">express-validator</code> to prevent SQL/NoSQL injection vulnerabilities.
+            </p>
+          </div>
+
+          <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm">4. Local Quick Start Commands</h3>
+            <pre class="font-mono text-emerald-400 bg-slate-900 p-2 rounded">
+npm install
+npm run start</pre>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MOCK DATABASE MODAL -->
+  <div id="db-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white text-base flex items-center space-x-2">
+          <i data-lucide="database" class="w-5 h-5 text-sky-400"></i>
+          <span>MongoDB Simulated User Collection</span>
+        </h3>
+        <button onclick="toggleDbModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-xs text-slate-400">Passwords stored are salt-hashed using cryptographic PBKDF2/SHA-256 (simulating bcrypt).</p>
+        <div class="max-h-64 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <pre id="db-json-view" class="font-mono text-xs text-emerald-400">[]</pre>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="resetDatabase()" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-medium transition">
+          Reset User Records
+        </button>
+        <button onclick="toggleDbModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-medium transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. CODE CODEBASE FILES STORAGE FOR THE CODE VIEWER
+       ========================================================================== */
+    const CODE_FILES = {
+      server: `// server.js - Express Server Entry Point
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
+
+const authRoutes = require('./routes/auth');
+
+const app = express();
+
+// Security & Middleware
+app.use(express.json());
+app.use(cors());
+
+// Database Connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch(err => console.error('MongoDB Connection Error:', err));
+
+// Route Handlers
+app.use('/api', authRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(\`Server running on port \${PORT}\`));`,
+
+      userModel: `// models/User.js - User Mongoose Schema with Password Hashing
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const UserSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, 'Username is required'],
+    unique: true,
+    trim: true,
+    minlength: 3
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    lowercase: true,
+    match: [/^\\S+@\\S+\\.\\S+$/, 'Please enter a valid email address']
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: 6
+  }
+}, { timestamps: true });
+
+// Pre-save hook: Hash password before saving to DB
+UserSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Instance method to compare password
+UserSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
+module.exports = mongoose.model('User', UserSchema);`,
+
+      authMiddleware: `// middleware/auth.js - JWT Authentication Protection Middleware
+const jwt = require('jsonwebtoken');
+
+module.exports = function(req, res, next) {
+  // Get token from Authorization header
+  const authHeader = req.header('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey123');
+    req.user = decoded; // Attach user payload to request
+    next();
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired token.' });
+  }
+};`,
+
+      authController: `// controllers/authController.js - Registration, Login & Dashboard Controllers
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+// POST /api/register
+exports.register = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Please provide all required fields.' });
+    }
+
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email or username already exists.' });
+    }
+
+    const newUser = new User({ username, email, password });
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully', userId: newUser._id });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error during registration' });
+  }
+};
+
+// POST /api/login
+exports.login = async (req, res) => {
+  try {
+    const { identifier, password } = req.body;
+
+    const user = await User.findOne({ 
+      $or: [{ email: identifier }, { username: identifier }] 
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Generate JWT Token
+    const token = jwt.sign(
+      { id: user._id, username: user.username, email: user.email },
+      process.env.JWT_SECRET || 'secretkey123',
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user._id, username: user.username, email: user.email }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error during login' });
+  }
+};
+
+// GET /api/dashboard (Protected)
+exports.getDashboard = async (req, res) => {
+  res.json({
+    message: 'Welcome to the protected dashboard!',
+    user: req.user,
+    secretData: 'Sensitive application stats loaded successfully.'
+  });
+};`,
+
+      packageJson: `{
+  "name": "auth-system-backend",
+  "version": "1.0.0",
+  "description": "Secure User Authentication Express API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.0"
+  }
+}`
+    };
+
+    let activeCodeKey = 'server';
+
+    function switchCodeFile(fileKey) {
+      activeCodeKey = fileKey;
+      document.querySelectorAll('.code-file-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white');
+        btn.classList.add('bg-slate-900', 'text-slate-400');
+      });
+
+      const activeBtn = document.getElementById(`code-tab-${fileKey}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-sky-600', 'text-white');
+        activeBtn.classList.remove('bg-slate-900', 'text-slate-400');
+      }
+
+      document.getElementById('current-filename').innerText = fileKey === 'server' ? 'server.js' : 
+                                                            fileKey === 'userModel' ? 'models/User.js' :
+                                                            fileKey === 'authMiddleware' ? 'middleware/auth.js' :
+                                                            fileKey === 'authController' ? 'controllers/authController.js' : 'package.json';
+
+      document.getElementById('code-viewer-block').innerText = CODE_FILES[fileKey];
+    }
+
+    function copyCurrentCode() {
+      const textToCopy = CODE_FILES[activeCodeKey];
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = textToCopy;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+
+      const copyBtnText = document.getElementById('copy-btn-text');
+      copyBtnText.innerText = "Copied!";
+      setTimeout(() => { copyBtnText.innerText = "Copy Code"; }, 2000);
+    }
+
+
+    /* ==========================================================================
+       2. CLIENT-SIDE CRYPTO & AUTH DEMO ENGINE
+       ========================================================================== */
+    const JWT_SECRET_DEMO = "auth_demo_secret_2026";
+    const DB_KEY = "auth_demo_users_db";
+
+    // Hash helpers
+    function generateSalt() {
+      const array = new Uint8Array(16);
+      window.crypto.getRandomValues(array);
+      return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function computeHash(password, salt) {
+      const encoder = new TextEncoder();
+      const keyMaterial = await window.crypto.subtle.importKey(
+        "raw", encoder.encode(password), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]
+      );
+
+      const derivedKey = await window.crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: encoder.encode(salt), iterations: 10000, hash: "SHA-256" },
+        keyMaterial, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]
+      );
+
+      const exported = await window.crypto.subtle.exportKey("raw", derivedKey);
+      return Array.from(new Uint8Array(exported), b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function base64UrlEncode(str) {
+      return btoa(str).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    }
+
+    function base64UrlDecode(str) {
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) str += '=';
+      return atob(str);
+    }
+
+    function createMockJWT(payload) {
+      const header = { alg: "HS256", typ: "JWT" };
+      const now = Math.floor(Date.now() / 1000);
+      const fullPayload = { ...payload, iat: now, exp: now + 3600 };
+
+      const b64Header = base64UrlEncode(JSON.stringify(header));
+      const b64Payload = base64UrlEncode(JSON.stringify(fullPayload));
+      const signature = base64UrlEncode(`${b64Header}.${b64Payload}.${JWT_SECRET_DEMO}`);
+
+      return `${b64Header}.${b64Payload}.${signature}`;
+    }
+
+    function verifyMockJWT(token) {
+      if (!token) return { valid: false, reason: "No token provided" };
+      const parts = token.split('.');
+      if (parts.length !== 3) return { valid: false, reason: "Invalid format" };
+
+      const [headerB64, payloadB64, sig] = parts;
+      const expectedSig = base64UrlEncode(`${headerB64}.${payloadB64}.${JWT_SECRET_DEMO}`);
+      if (sig !== expectedSig) return { valid: false, reason: "Invalid signature" };
+
+      try {
+        const payload = JSON.parse(base64UrlDecode(payloadB64));
+        if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+          return { valid: false, reason: "Token expired" };
+        }
+        return { valid: true, payload };
+      } catch (e) {
+        return { valid: false, reason: "Payload decode error" };
+      }
+    }
+
+    // Mock DB operations
+    function getDB() {
+      const data = localStorage.getItem(DB_KEY);
+      if (!data) return [];
+      return JSON.parse(data);
+    }
+
+    function saveDB(data) {
+      localStorage.setItem(DB_KEY, JSON.stringify(data));
+      document.getElementById('db-user-count').innerText = data.length;
+      document.getElementById('db-json-view').innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function seedDemoData() {
+      const db = getDB();
+      if (db.length === 0) {
+        const salt = generateSalt();
+        const hash = await computeHash("Password123!", salt);
+        db.push({
+          id: "usr_demo123",
+          username: "alex_dev",
+          email: "alex@company.com",
+          salt,
+          passwordHash: hash,
+          createdAt: new Date().toISOString()
+        });
+        saveDB(db);
+      }
+    }
+
+    // Mock Express API Router
+    async function mockExpressServer(route, method, body = null, headers = {}) {
+      logConsole('REQ', `${method} ${route}`, body ? JSON.stringify(body) : '');
+      await new Promise(r => setTimeout(r, 350)); // artificial network latency
+
+      // POST /api/register
+      if (route === '/api/register' && method === 'POST') {
+        const { username, email, password } = body;
+        if (!username || !email || !password) {
+          const res = { status: 400, data: { error: "Username, email, and password required." } };
+          logConsole('RES', '400 Bad Request', JSON.stringify(res.data));
+          return res;
+        }
+
+        const db = getDB();
+        if (db.some(u => u.email.toLowerCase() === email.toLowerCase() || u.username.toLowerCase() === username.toLowerCase())) {
+          const res = { status: 409, data: { error: "Username or email already registered." } };
+          logConsole('RES', '409 Conflict', JSON.stringify(res.data));
+          return res;
+        }
+
+        const salt = generateSalt();
+        const hash = await computeHash(password, salt);
+        const newUser = {
+          id: "usr_" + Math.random().toString(36).substring(2, 9),
+          username,
+          email,
+          salt,
+          passwordHash: hash,
+          createdAt: new Date().toISOString()
+        };
+
+        db.push(newUser);
+        saveDB(db);
+
+        const res = { status: 201, data: { message: "User registered successfully", userId: newUser.id } };
+        logConsole('RES', '201 Created', JSON.stringify(res.data));
+        return res;
+      }
+
+      // POST /api/login
+      if (route === '/api/login' && method === 'POST') {
+        const { identifier, password } = body;
+        const db = getDB();
+
+        const user = db.find(u => u.email.toLowerCase() === identifier.toLowerCase() || u.username.toLowerCase() === identifier.toLowerCase());
+        if (!user) {
+          const res = { status: 401, data: { error: "Invalid username/email or password." } };
+          logConsole('RES', '401 Unauthorized', JSON.stringify(res.data));
+          return res;
+        }
+
+        const hash = await computeHash(password, user.salt);
+        if (hash !== user.passwordHash) {
+          const res = { status: 401, data: { error: "Invalid username/email or password." } };
+          logConsole('RES', '401 Unauthorized', JSON.stringify(res.data));
+          return res;
+        }
+
+        const token = createMockJWT({ id: user.id, username: user.username, email: user.email });
+        const res = {
+          status: 200,
+          data: {
+            message: "Login successful",
+            token,
+            user: { id: user.id, username: user.username, email: user.email }
+          }
+        };
+        logConsole('RES', '200 OK Token Generated', JSON.stringify({ ...res.data, token: token.substring(0, 20) + '...' }));
+        return res;
+      }
+
+      // GET /api/dashboard
+      if (route === '/api/dashboard' && method === 'GET') {
+        const auth = headers['Authorization'] || headers['authorization'];
+        if (!auth || !auth.startsWith('Bearer ')) {
+          const res = { status: 401, data: { error: "Access denied. Token missing." } };
+          logConsole('RES', '401 Unauthorized', JSON.stringify(res.data));
+          return res;
+        }
+
+        const token = auth.split(' ')[1];
+        const verify = verifyMockJWT(token);
+        if (!verify.valid) {
+          const res = { status: 401, data: { error: `Unauthorized: ${verify.reason}` } };
+          logConsole('RES', '401 Unauthorized', JSON.stringify(res.data));
+          return res;
+        }
+
+        const res = {
+          status: 200,
+          data: {
+            message: "Welcome to the protected dashboard!",
+            user: verify.payload,
+            protectedData: "🔒 Sensitive Protected Content: Internal API Secret Key Loaded."
+          }
+        };
+        logConsole('RES', '200 OK Protected Access Granted', JSON.stringify(res.data));
+        return res;
+      }
+
+      return { status: 404, data: { error: "Route not found" } };
+    }
+
+
+    /* ==========================================================================
+       3. UI & TAB NAVIGATION CONTROLLERS
+       ========================================================================== */
+
+    function switchMainSection(sec) {
+      document.querySelectorAll('.main-section').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.main-sec-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white', 'shadow');
+        btn.classList.add('text-slate-400');
+      });
+
+      document.getElementById(`sec-${sec}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`btn-sec-${sec}`);
+      activeBtn.classList.add('bg-sky-600', 'text-white', 'shadow');
+      activeBtn.classList.remove('text-slate-400');
+    }
+
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-panel').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white', 'shadow');
+        btn.classList.add('text-slate-400');
+      });
+
+      document.getElementById(`auth-view-${tab}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`auth-tab-${tab}`);
+      activeBtn.classList.add('bg-sky-600', 'text-white', 'shadow');
+      activeBtn.classList.remove('text-slate-400');
+
+      if (tab === 'dashboard') {
+        checkDashboardStatus();
+      }
+    }
+
+    function updatePasswordStrength(val) {
+      const bar = document.getElementById('strength-bar');
+      const label = document.getElementById('strength-label');
+      let score = 0;
+
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
+      const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+      const widths = ['25%', '50%', '75%', '100%'];
+
+      const idx = Math.max(0, score - 1);
+      bar.className = `h-full transition-all duration-300 ${colors[idx]}`;
+      bar.style.width = val.length === 0 ? '0%' : widths[idx];
+      label.innerText = val.length === 0 ? 'Weak' : labels[idx];
+    }
+
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      document.getElementById('reg-error-box').classList.add('hidden');
+
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+
+      const res = await mockExpressServer('/api/register', 'POST', { username, email, password });
+
+      if (res.status === 201) {
+        alert('Registration Successful! Redirecting to login tab...');
+        switchAuthTab('login');
+      } else {
+        document.getElementById('reg-error-msg').innerText = res.data.error;
+        document.getElementById('reg-error-box').classList.remove('hidden');
+      }
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      document.getElementById('login-error-box').classList.add('hidden');
+
+      const identifier = document.getElementById('login-identifier').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      const res = await mockExpressServer('/api/login', 'POST', { identifier, password });
+
+      if (res.status === 200) {
+        localStorage.setItem('auth_demo_token', res.data.token);
+        updateSessionUI();
+        switchAuthTab('dashboard');
+      } else {
+        document.getElementById('login-error-msg').innerText = res.data.error;
+        document.getElementById('login-error-box').classList.remove('hidden');
+      }
+    }
+
+    async function checkDashboardStatus() {
+      const token = localStorage.getItem('auth_demo_token');
+      const deniedBox = document.getElementById('dash-guard-denied');
+      const grantedBox = document.getElementById('dash-guard-granted');
+
+      if (!token) {
+        deniedBox.classList.remove('hidden');
+        grantedBox.classList.add('hidden');
+        return;
+      }
+
+      const res = await mockExpressServer('/api/dashboard', 'GET', null, { 'Authorization': `Bearer ${token}` });
+
+      if (res.status === 200) {
+        deniedBox.classList.add('hidden');
+        grantedBox.classList.remove('hidden');
+
+        const user = res.data.user;
+        document.getElementById('dash-username').innerText = user.username;
+        document.getElementById('dash-email').innerText = user.email;
+        document.getElementById('dash-avatar-initials').innerText = user.username.substring(0, 2).toUpperCase();
+        document.getElementById('jwt-payload-display').innerText = JSON.stringify(user, null, 2);
+        document.getElementById('protected-response-output').innerText = JSON.stringify(res.data, null, 2);
+      } else {
+        localStorage.removeItem('auth_demo_token');
+        updateSessionUI();
+        deniedBox.classList.remove('hidden');
+        grantedBox.classList.add('hidden');
+      }
+    }
+
+    async function fetchProtectedDashboard() {
+      const token = localStorage.getItem('auth_demo_token');
+      const res = await mockExpressServer('/api/dashboard', 'GET', null, { 'Authorization': `Bearer ${token}` });
+      document.getElementById('protected-response-output').innerText = JSON.stringify(res.data, null, 2);
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('auth_demo_token');
+      logConsole('INFO', 'Logout', 'JWT Token cleared from storage.');
+      updateSessionUI();
+      switchAuthTab('login');
+    }
+
+    function updateSessionUI() {
+      const token = localStorage.getItem('auth_demo_token');
+      const badge = document.getElementById('session-badge');
+      const text = document.getElementById('session-username-display');
+
+      if (token) {
+        const verify = verifyMockJWT(token);
+        if (verify.valid) {
+          badge.classList.remove('hidden');
+          text.innerText = verify.payload.username;
+          return;
+        }
+      }
+      badge.classList.add('hidden');
+    }
+
+    function fillDemoAccount() {
+      document.getElementById('login-identifier').value = 'alex@company.com';
+      document.getElementById('login-password').value = 'Password123!';
+    }
+
+    function logConsole(type, title, details) {
+      const box = document.getElementById('console-logs-box');
+      const item = document.createElement('div');
+      item.className = "border-b border-slate-900 pb-2 space-y-0.5";
+
+      let badge = type === 'REQ' ? '<span class="bg-sky-500/20 text-sky-400 px-1 py-0.5 rounded text-[9px] font-bold">REQ</span>' :
+                  type === 'RES' ? '<span class="bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded text-[9px] font-bold">RES</span>' :
+                                   '<span class="bg-amber-500/20 text-amber-400 px-1 py-0.5 rounded text-[9px] font-bold">SYS</span>';
+
+      item.innerHTML = `
+        <div class="flex items-center space-x-2">
+          ${badge}
+          <span class="text-slate-300 font-semibold">${title}</span>
+          <span class="text-[9px] text-slate-500 ml-auto">${new Date().toLocaleTimeString()}</span>
+        </div>
+        ${details ? `<div class="text-slate-400 pl-2 border-l border-slate-800 break-all">${details}</div>` : ''}
+      `;
+      box.appendChild(item);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearConsoleLog() {
+      document.getElementById('console-logs-box').innerHTML = '<div class="text-slate-500 italic">[Logs Cleared]</div>';
+    }
+
+    function toggleDbModal() {
+      const modal = document.getElementById('db-modal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        document.getElementById('db-json-view').innerText = JSON.stringify(getDB(), null, 2);
+      }
+    }
+
+    function resetDatabase() {
+      localStorage.removeItem(DB_KEY);
+      seedDemoData();
+      alert('Mock Database reset.');
+      toggleDbModal();
+    }
+
+    // Window Init
+    window.onload = async function() {
+      lucide.createIcons();
+      await seedDemoData();
+      switchCodeFile('server');
+      updateSessionUI();
+    };
+  </script>
+</body>
+</html>
