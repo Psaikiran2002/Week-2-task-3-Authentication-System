@@ -83,6 +83,9 @@ bug would leak the token. An HttpOnly cookie cannot be read by JavaScript.
 3. Show the protected dashboard
 4. Open `/dashboard` in a private window -> redirected to login
 5. Logout, then try the dashboard again
+6. Demo
+Video walkthrough: audio-demo-video.mp4 (about 56 seconds)
+Screenshots: see the Screenshots section below
 
 ## Documentation
 See [docs/API.md](docs/API.md) for every endpoint.
